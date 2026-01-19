@@ -1,0 +1,21 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-2
+
+phases:
+  pre_build:
+    commands:
+      - terraform --version
+      - aws sts get-caller-identity
+
+  build:
+    commands:
+      - terraform init
+      - terraform workspace select ${ENVIRONMENT} || terraform workspace new ${ENVIRONMENT}
+      - terraform plan
+
+  post_build:
+    commands:
+      - echo "Terraform plan completed"
