@@ -40,7 +40,7 @@ module "s3" {
 
 # Cognito
 module "Cognito" {
-  source       = "./shared/Cognito"
+  source       = "./shared/cognito"
   environment  = terraform.workspace
   project_name = var.project_name
   app_name     = var.app_name
