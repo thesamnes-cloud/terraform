@@ -1,23 +1,22 @@
-FROM hashicorp/terraform:1.6
+version: 0.2
 
-# Instalar AWS CLI (v2)
-RUN apk add --no-cache \
-    python3 \
-    py3-pip \
-    bash \
-    curl \
-    jq \
-    aws-cli
+env:
+  variables:
+    TF_VERSION: "1.6.6"
 
-# Directorio de trabajo
-WORKDIR /workspace
-
-# Copiamos todo el repo (mono-repo friendly)
-COPY . .
-
-# Terraform usará credenciales del IAM Role automáticamente
-ENV AWS_REGION=us-east-2
-ENV TF_IN_AUTOMATION=true
-
-# Comando por defecto (se sobreescribe en pipeline)
-CMD ["terraform", "--version"]
+phases:
+  install:
+    commands:
+      - curl -s https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip -o terraform.zip
+      - unzip terraform.zip
+      - mv terraform /usr/local/bin/
+  pre_build:
+    commands:
+      - terraform --version
+      - terraform init -input=false
+  build:
+    commands:
+      - terraform plan -input=false
+  post_build:
+    commands:
+      - terraform apply -auto-approve -input=false
